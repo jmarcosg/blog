@@ -1,15 +1,14 @@
 import { Footer, Header, ThemeProvider } from "@/components"
-import { REVALIDATE_TIME } from "@/config"
-import "@/styles/globals.css"
-import "@/styles/notion.css"
 import { Analytics } from "@vercel/analytics/react"
 import { Metadata } from "next"
 import localFont from "next/font/local"
+import "./globals.css"
+import "./notion.css"
 
-export const revalidate = REVALIDATE_TIME
+export const revalidate = 3600
 
 export const metadata: Metadata = {
-	title: "Juan Marcos Gonzalez | Portfolio",
+	title: "Juan Marcos Gonzalez | Blog",
 	authors: {
 		name: "Juan Marcos Gonzalez",
 	},
@@ -41,11 +40,11 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en" className={`!scroll-smooth ${display.variable}`}>
-			<body>
+			<body className="grain">
         <Analytics />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <Header />
-          <div className="min-h-[calc(100vh-64px)]">{children}</div>
+          <div className="min-h-[calc(100dvh-64px)]">{children}</div>
           <Footer />
         </ThemeProvider>
 			</body>
