@@ -1,16 +1,12 @@
-import { siteConfig } from "@/config"
-import { cn } from "@/utils"
-import Image from "next/image"
-import Link from "next/link"
-import { Suspense } from "react"
-import { Background } from "./background"
-import { MobileNav } from "./mobile-nav"
-import { Nav } from "./nav"
-import { ThemeToggle } from "./theme-toggle"
-
-const logo = siteConfig.header.logo
-const name = siteConfig.name
-const nav = siteConfig.header.nav
+import Logo from "@/assets/images/logo.png";
+import { cn } from "@/utils";
+import Image from "next/image";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Background } from "./background";
+import { MobileNav } from "./mobile-nav";
+import { Nav } from "./nav";
+import { ThemeToggle } from "./theme-toggle";
 
 export const Header = () => {
   return (
@@ -21,21 +17,19 @@ export const Header = () => {
             href="/"
             className="mr-8 flex items-center space-x-2 transition-all hover:opacity-80"
           >
-            {logo && (
               <Image
-                src={logo}
-                alt={name}
+                src={Logo}
+                alt={"logo"}
                 loading="lazy"
                 width={30}
                 height={30}
                 className="aspect-[auto 30 / 30] object-cover"
               />
-            )}
-            <span className="inline-block font-bold">{name}</span>
+            <span className="inline-block font-bold select-none">jmarcosg</span>
           </Link>
           <div className="hidden flex-1 sm:flex">
             <div className="flex-1">
-              <Nav items={nav} />
+              <Nav />
             </div>
             <div className="flex space-x-2">
               <ThemeToggle />

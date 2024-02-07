@@ -1,19 +1,17 @@
 "use client"
 
-import React from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { INavItem } from "@/types"
-import { cn } from "@/utils"
+import { links } from "@/lib/links";
+import { cn } from "@/utils";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface NavProps {
-  items: INavItem[]
-  direction?: "column" | "row"
-  onNavItemClick?: () => void
+interface INav {
+	direction?: "column" | "row";
+	onNavItemClick?: () => void;
 }
 
-export const Nav = (props: NavProps) => {
-  const { items, direction = "row", onNavItemClick } = props
+export const Nav = (props: INav) => {
+	const { direction = "row", onNavItemClick } = props;
   const pathname = usePathname()
 
   return (
@@ -22,22 +20,18 @@ export const Nav = (props: NavProps) => {
         "flex-col items-stretch": direction === "column",
       })}
     >
-      {items?.map(
-        (item, index) =>
-          item.href && (
+      {links?.map(
+        (link, index) =>
+          link.hash && (
             <Link
               key={index}
-              href={item.href}
+              href={link.hash}
               className={cn(
-                "hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all",
-                item.disabled && "cursor-not-allowed opacity-80",
-                item.href === pathname
-                  ? "bg-foreground/10 text-foreground"
-                  : "text-foreground/60"
+                "hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all"
               )}
               onClick={onNavItemClick}
             >
-              {item.title}
+              {link.name}
             </Link>
           )
       )}
