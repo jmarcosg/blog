@@ -1,4 +1,4 @@
-export interface INavItem {
+export type TNavItem = {
   title: string
   href?: string
   disabled?: boolean
