@@ -1,10 +1,10 @@
 "use client"
 
-import React from "react"
-import { useSearchParams } from "next/navigation"
 import { useUpdateQueryStringValueWithoutNavigation } from "@/hooks"
 import { TPost, TPosts } from "@/types"
 import { useInView } from "framer-motion"
+import { useSearchParams } from "next/navigation"
+import React from "react"
 import { PostsList } from "./posts-list"
 import { SearchBar } from "./search-bar"
 import { TagsSelect } from "./tags-select"

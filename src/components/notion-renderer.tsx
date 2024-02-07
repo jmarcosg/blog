@@ -1,13 +1,13 @@
 "use client"
 
-import { FC } from "react"
+import "katex/dist/katex.min.css"
+import { useTheme } from "next-themes"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
-import "katex/dist/katex.min.css"
-import { useTheme } from "next-themes"
 import { ExtendedRecordMap } from "notion-types"
 import "prismjs/themes/prism-tomorrow.css"
+import { FC } from "react"
 import "react-notion-x/src/styles.css"
 
 const _NotionRenderer = dynamic(

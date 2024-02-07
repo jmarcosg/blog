@@ -1,8 +1,7 @@
 "use client"
 
-import React from "react"
-import { cn } from "@/utils"
 import { Badge } from "@/components/ui"
+import { cn } from "@/utils"
 
 interface TagsSelectProps {
   tags: string[]
