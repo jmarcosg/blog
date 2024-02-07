@@ -127,7 +127,7 @@
     z-index: 9999;
     position: fixed;
     background-image: url("../assets/images/noise.png");
-    opacity: 0.30;
+    opacity: 0.35;
     pointer-events: none;
     -webkit-animation: noise 1s steps(2) infinite;
     animation: noise 1s steps(2) infinite;
