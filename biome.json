@@ -20,7 +20,7 @@
 			},
 			"style": {
 				"noInferrableTypes": "off",
-				"useConst": "off",
+				"useConst": "off"
 			}
 		}
 	}
