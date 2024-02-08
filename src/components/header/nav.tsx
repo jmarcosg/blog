@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { links } from "@/lib/links";
 import { cn } from "@/utils";
@@ -12,29 +12,30 @@ interface INav {
 
 export const Nav = (props: INav) => {
 	const { direction = "row", onNavItemClick } = props;
-  const pathname = usePathname()
+	const pathname = usePathname();
 
-  return (
-    <nav
-      className={cn("flex space-x-0 sm:space-x-2", {
-        "flex-col items-stretch": direction === "column",
-      })}
-    >
-      {links?.map(
-        (link, index) =>
-          link.hash && (
-            <Link
-              key={index}
-              href={link.hash}
-              className={cn(
-                "hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all"
-              )}
-              onClick={onNavItemClick}
-            >
-              {link.name}
-            </Link>
-          )
-      )}
-    </nav>
-  )
-}
+	return (
+		<nav
+			className={cn("flex space-x-0 sm:space-x-2", {
+				"flex-col items-stretch": direction === "column",
+			})}
+		>
+			{links?.map(
+				(link, index) =>
+					link.hash && (
+						<Link
+							key={index}
+							href={link.hash}
+							className={cn(
+								"hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all",
+							)}
+							target="_blank"
+							onClick={onNavItemClick}
+						>
+							{link.name}
+						</Link>
+					),
+			)}
+		</nav>
+	);
+};
