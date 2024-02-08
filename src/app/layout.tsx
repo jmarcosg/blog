@@ -1,11 +1,11 @@
-import { Footer, Header, ThemeProvider } from "@/components"
-import { Analytics } from "@vercel/analytics/react"
-import { Metadata } from "next"
-import localFont from "next/font/local"
-import "./globals.css"
-import "./notion.css"
+import { Footer, Header, ThemeProvider } from "@/components";
+import { Analytics } from "@vercel/analytics/react";
+import { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+import "./notion.css";
 
-export const revalidate = 3600
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
 	title: "Juan Marcos Gonzalez | Blog",
@@ -41,12 +41,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en" className={`!scroll-smooth ${display.variable}`}>
 			<body className="grain">
-        <Analytics />
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <Header />
-          <div className="min-h-[calc(100dvh-64px)]">{children}</div>
-          <Footer />
-        </ThemeProvider>
+				<Analytics />
+				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+					<Header />
+					<main className="min-h-[calc(100dvh-64px)]">{children}</main>
+					<Footer />
+				</ThemeProvider>
 			</body>
 		</html>
 	);
