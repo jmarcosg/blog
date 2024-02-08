@@ -1,6 +1,5 @@
 "use client";
 
-import { links } from "@/lib/links";
 import { cn } from "@/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,22 +19,15 @@ export const Nav = (props: INav) => {
 				"flex-col items-stretch": direction === "column",
 			})}
 		>
-			{links?.map(
-				(link, index) =>
-					link.hash && (
-						<Link
-							key={index}
-							href={link.hash}
-							className={cn(
-								"hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all",
-							)}
-							target="_blank"
-							onClick={onNavItemClick}
-						>
-							{link.name}
-						</Link>
-					),
-			)}
+			<Link
+				href="www.jmarcosg.dev"
+				className={cn(
+					"hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all",
+				)}
+				onClick={onNavItemClick}
+			>
+				Portfolio
+			</Link>
 		</nav>
 	);
 };
