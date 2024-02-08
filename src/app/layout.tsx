@@ -40,7 +40,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
 	return (
 		<html lang="en" className={`!scroll-smooth ${display.variable}`}>
-			<body className="grain">
+			<body>
 				<Analytics />
 				<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
 					<Header />
