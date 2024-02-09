@@ -1,3 +1,4 @@
+import { Home } from "@/assets/icons";
 import NotionRenderer from "@/components/notion-renderer";
 import { Badge, Button } from "@/components/ui";
 import { filterPublishedPosts, getAllPosts } from "@/lib/notion";
@@ -46,7 +47,9 @@ const PostPage = async (props: PostPageProps) => {
 
 			<div className="flex flex-wrap gap-1 mb-4">
 				<Button variant="link" className="dark:text-white" asChild>
-					<Link href={"/"}>Home</Link>
+					<Link href={"/"}>
+						<Home className="h-4 w-4 me-2" /> Home
+					</Link>
 				</Button>
 				<Button variant="link" className="dark:text-white">
 					/
