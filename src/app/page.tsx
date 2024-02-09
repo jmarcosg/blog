@@ -46,13 +46,13 @@ const Blog = async () => {
 								<Skeleton className="w-20 h-8" />
 								<Skeleton className="w-20 h-8" />
 							</div>
-						</div>
 
-						<ul className="flex flex-col space-y-4">
-							<Skeleton className="w-full h-5" />
-							<Skeleton className="w-full h-8" />
-							<Skeleton className="w-full h-40" />
-						</ul>
+							<ul className="flex flex-col space-y-4">
+								<Skeleton className="w-full h-5" />
+								<Skeleton className="w-full h-8" />
+								<Skeleton className="w-full h-40" />
+							</ul>
+						</div>
 					</>
 				}
 			>
