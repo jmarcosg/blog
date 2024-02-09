@@ -10,7 +10,7 @@ export const Footer = async () => {
 			<small className="my-2 block text-xs">
 				&copy; {currentYear}
 				<a
-					href="https://github.com/jmarcosg/porfolio"
+					href="https://github.com/jmarcosg/blog"
 					target="_blank"
 					rel="noopener noreferrer"
 					className="hover:underline"
