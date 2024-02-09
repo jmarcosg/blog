@@ -22,7 +22,7 @@ export const Nav = (props: INav) => {
 			<Link
 				href="www.jmarcosg.dev"
 				className={cn(
-					"hover:text-foreground flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all",
+					"text-foreground/ flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all hover:bg-foreground/10",
 				)}
 				onClick={onNavItemClick}
 			>
