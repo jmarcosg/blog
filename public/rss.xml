@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>jmarcosg</title>
+        <link>https://blog.jmarcosg.dev</link>
+        <description>Juan Marcos is a Fullstack Software Developer oriented to the Frontend Development.</description>
+        <lastBuildDate>Fri, 09 Feb 2024 14:42:53 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <copyright>All rights reserved 2024, jmarcosg</copyright>
+        <item>
+            <title><![CDATA[How to add comments in Notion? (2023)]]></title>
+            <link>https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023</link>
+            <guid>https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023</guid>
+            <pubDate>Tue, 30 Jan 2024 12:55:20 GMT</pubDate>
+            <description><![CDATA[One of the most important features that make Notion a sought after project management tool is the ability of users to comment and converse in real time, without leaving the Notion page. It’s an important subset of Notion’s vast collection of collaboration features that make teams more efficient, focussed, and save hours!]]></description>
+        </item>
+    </channel>
+</rss>

@@ -1,6 +1,7 @@
 import { PostsExplorer, getAllTags } from "@/features";
 import { filterPublishedPosts, getAllPosts } from "@/lib/notion";
 import { generateRssFeed } from "@/utils/rss";
+import { Suspense } from "react";
 
 async function getData() {
 	await generateRssFeed();
@@ -27,7 +28,9 @@ const Blog = async () => {
 			<div className="bg-[#dbd7fb] absolute top-[-15rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#676394]" />
 			<h1 className="mb-4 text-center	text-4xl font-bold">Hello World!</h1>
 
-			<PostsExplorer posts={posts} tags={tags} />
+			<Suspense fallback={<div>Loading...</div>}>
+				<PostsExplorer posts={posts} tags={tags} />
+			</Suspense>
 		</div>
 	);
 };

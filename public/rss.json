@@ -1,0 +1,16 @@
+{
+    "version": "https://jsonfeed.org/version/1",
+    "title": "jmarcosg",
+    "home_page_url": "https://blog.jmarcosg.dev",
+    "feed_url": "https://blog.jmarcosg.dev/rss.json",
+    "description": "Juan Marcos is a Fullstack Software Developer oriented to the Frontend Development.",
+    "items": [
+        {
+            "id": "https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023",
+            "url": "https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023",
+            "title": "How to add comments in Notion? (2023)",
+            "summary": "One of the most important features that make Notion a sought after project management tool is the ability of users to comment and converse in real time, without leaving the Notion page. It’s an important subset of Notion’s vast collection of collaboration features that make teams more efficient, focussed, and save hours!",
+            "date_modified": "2024-01-30T12:55:20.339Z"
+        }
+    ]
+}
