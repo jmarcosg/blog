@@ -28,6 +28,15 @@ export const Nav = (props: INav) => {
 			>
 				Portfolio
 			</Link>
+			<Link
+				href="cv.jmarcosg.dev"
+				className={cn(
+					"text-foreground/ flex items-center justify-center rounded-lg px-5 py-2 text-sm font-medium transition-all hover:bg-foreground/10",
+				)}
+				onClick={onNavItemClick}
+			>
+				CV
+			</Link>
 		</nav>
 	);
 };
