@@ -6,5 +6,9 @@ export const links = [
 	{
 		name: "Portfolio",
 		hash: "www.jmarcosg.dev",
-	}
+	},
+	{
+		name: "CV",
+		hash: "cv.jmarcosg.dev",
+	},
 ] as const;
