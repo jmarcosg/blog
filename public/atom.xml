@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://blog.jmarcosg.dev</id>
     <title>jmarcosg</title>
-    <updated>2024-02-09T14:42:53.345Z</updated>
+    <updated>2024-03-12T17:04:10.246Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://blog.jmarcosg.dev"/>
     <link rel="self" href="https://blog.jmarcosg.dev/atom.xml"/>
@@ -10,10 +10,17 @@
     <icon>https://blog.jmarcosg.dev/favicon.svg</icon>
     <rights>All rights reserved 2024, jmarcosg</rights>
     <entry>
+        <title type="html"><![CDATA[What’s Object Oriented Programming?]]></title>
+        <id>https://blog.jmarcosg.dev/blog/object-oriented-programming</id>
+        <link href="https://blog.jmarcosg.dev/blog/object-oriented-programming"/>
+        <updated>2024-03-11T16:26:40.527Z</updated>
+        <summary type="html"><![CDATA[Ever heard of Object-Oriented Programming (OOP)? It's like Legos for coders! Instead of single lines, we build with mini-programs (objects) to snap together features. This makes coding faster and easier to manage.]]></summary>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[How to add comments in Notion? (2023)]]></title>
         <id>https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023</id>
         <link href="https://blog.jmarcosg.dev/blog/how-to-add-comments-in-notion-2023"/>
-        <updated>2024-01-30T12:55:20.339Z</updated>
+        <updated>2024-02-09T16:23:18.374Z</updated>
         <summary type="html"><![CDATA[One of the most important features that make Notion a sought after project management tool is the ability of users to comment and converse in real time, without leaving the Notion page. It’s an important subset of Notion’s vast collection of collaboration features that make teams more efficient, focussed, and save hours!]]></summary>
     </entry>
 </feed>
