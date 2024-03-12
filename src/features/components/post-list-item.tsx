@@ -75,7 +75,7 @@ export const PostListItem = (props: PostListItemProps) => {
 					{thumbnail && (
 						<CoverImage
 							src={thumbnail}
-							className="hidden sm:block"
+							className="hidden sm:block object-cover"
 							alt={title}
 						/>
 					)}
