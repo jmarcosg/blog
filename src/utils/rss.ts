@@ -1,3 +1,7 @@
+/**
+ * @deprecated RSS is now served dynamically via route handlers (app/rss.xml, app/atom.xml, app/rss.json).
+ * Use the /api/revalidate endpoint to trigger cache invalidation; RSS will reflect fresh data on next request.
+ */
 import { SITE_URL, siteConfig } from "@/config"
 import { parseISO } from "date-fns"
 import { Feed, FeedOptions } from "feed"
