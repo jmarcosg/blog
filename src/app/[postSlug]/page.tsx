@@ -1,28 +1,37 @@
 import { Home } from "@/assets/icons";
 import NotionRenderer from "@/components/notion-renderer";
 import { Badge, Button } from "@/components/ui";
-import { filterPublishedPosts, getAllPosts } from "@/lib/notion";
-import { getPostBlocks } from "@/lib/notion/get-post-blocks";
+import {
+	filterPublishedPosts,
+	getCachedPosts,
+	getCachedPostBlocks,
+} from "@/lib/notion";
 import { formatDate } from "@/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export async function generateStaticParams() {
-	const posts = await getAllPosts({ includePages: false });
+export const dynamicParams = true;
 
-	const filteredPosts = filterPublishedPosts({ posts, includePages: false });
-	return filteredPosts?.map((elem) => ({
-		postSlug: elem.slug,
-	}));
+export async function generateStaticParams() {
+	try {
+		const posts = await getCachedPosts({ includePages: false });
+		const filteredPosts = filterPublishedPosts({
+			posts,
+			includePages: false,
+		});
+		return filteredPosts?.map((elem) => ({ postSlug: elem.slug })) ?? [];
+	} catch {
+		return [];
+	}
 }
 
 async function getPost(postSlug: string) {
-	const posts = await getAllPosts({ includePages: false });
+	const posts = await getCachedPosts({ includePages: false });
 	if (!posts) return { post: null, recordMap: null };
 	const filteredPosts = posts.filter((elem) => postSlug === elem.slug);
 	if (filteredPosts.length === 0) return { post: null, recordMap: null };
 	const post = filteredPosts[0];
-	const recordMap = await getPostBlocks(post.id);
+	const recordMap = await getCachedPostBlocks(post.id);
 
 	return { post, recordMap };
 }

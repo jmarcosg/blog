@@ -1,12 +1,10 @@
 import { Skeleton } from "@/components/ui";
 import { PostsExplorer, getAllTags } from "@/features";
-import { filterPublishedPosts, getAllPosts } from "@/lib/notion";
-import { generateRssFeed } from "@/utils/rss";
+import { filterPublishedPosts, getCachedPosts } from "@/lib/notion";
 import { Suspense } from "react";
 
 async function getData() {
-	await generateRssFeed();
-	const posts = await getAllPosts({ includePages: false });
+	const posts = await getCachedPosts({ includePages: false });
 	const filteredPosts = filterPublishedPosts({ posts, includePages: false });
 
 	let tags: string[] = [];
