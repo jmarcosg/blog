@@ -1,10 +1,12 @@
 import { Skeleton } from "@/components/ui";
 import { PostsExplorer, getAllTags } from "@/features";
-import { filterPublishedPosts, getCachedPosts } from "@/lib/notion";
+import { filterPublishedPosts, getAllPosts } from "@/lib/notion";
 import { Suspense } from "react";
 
+export const dynamic = "force-dynamic";
+
 async function getData() {
-	const posts = await getCachedPosts({ includePages: false });
+	const posts = await getAllPosts({ includePages: false });
 	const filteredPosts = filterPublishedPosts({ posts, includePages: false });
 
 	let tags: string[] = [];
