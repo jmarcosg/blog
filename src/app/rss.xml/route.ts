@@ -1,13 +1,13 @@
-import { getCachedPosts } from "@/lib/notion"
+import { getAllPosts } from "@/lib/notion"
 import { filterPublishedPosts } from "@/lib/notion"
 import { SITE_URL, siteConfig } from "@/config"
 import { parseISO } from "date-fns"
 import { Feed } from "feed"
 
-export const revalidate = 3600
+export const dynamic = "force-dynamic"
 
 export async function GET() {
-	const posts = await getCachedPosts({ includePages: false })
+	const posts = await getAllPosts({ includePages: false })
 
 	if (!SITE_URL) {
 		return new Response("Missing SITE_URL", { status: 500 })
@@ -49,7 +49,7 @@ export async function GET() {
 	return new Response(feed.rss2(), {
 		headers: {
 			"Content-Type": "application/rss+xml; charset=utf-8",
-			"Cache-Control": "public, s-maxage=3600, stale-while-revalidate",
+			"Cache-Control": "public, s-maxage=60, stale-while-revalidate",
 		},
 	})
 }

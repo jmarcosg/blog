@@ -6,6 +6,25 @@ import { getPageProperties } from "./get-page-properties"
 import { mapImgUrl } from "./map-image"
 import { api } from "./notion-api"
 
+/** Normalize property keys so Status/Type/Title/Slug work regardless of Notion column naming */
+function normalizePostProperties(properties: Record<string, unknown>): Record<string, unknown> {
+  const get = (keys: string[]) => {
+    const lowerKeys = keys.map((k) => k.toLowerCase())
+    for (const [k, v] of Object.entries(properties)) {
+      if (v != null && v !== "" && lowerKeys.includes(k.toLowerCase())) return v
+    }
+    return undefined
+  }
+  return {
+    ...properties,
+    title: get(["title", "name"]) ?? properties.title,
+    slug: get(["slug"]) ?? properties.slug,
+    status: get(["status"]) ?? properties.status,
+    type: get(["type"]) ?? properties.type,
+    tags: get(["tags"]) ?? properties.tags,
+  }
+}
+
 export async function getAllPosts({ includePages = false }) {
   const id = idToUuid(NOTION_PAGE_ID)
   const response = await api.getPage(id)
@@ -29,7 +48,8 @@ export async function getAllPosts({ includePages = false }) {
     const data = []
     for (let i = 0; i < pageIds.length; i++) {
       const id = pageIds[i]
-      const properties = (await getPageProperties(id, block, schema)) || null
+      let properties = (await getPageProperties(id, block, schema)) || null
+      properties = normalizePostProperties(properties as Record<string, unknown>)
 
       // Add fullwidth to properties
       properties.fullWidth = block[id].value?.format?.page_full_width ?? false
