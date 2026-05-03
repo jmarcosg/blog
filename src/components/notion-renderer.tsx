@@ -3,6 +3,15 @@ import type { FC, ReactNode } from "react"
 import type { NotionBlock } from "@/lib/notion/get-post-blocks"
 import { cn } from "@/utils"
 
+// Notion block IDs are UUIDs with dashes; strip them for stable anchor IDs.
+const headingId = (id: string) => `h-${id.replace(/-/g, "")}`
+
+type HeadingEntry = {
+	id: string
+	level: 1 | 2 | 3
+	text: string
+}
+
 // ---------- Rich text ----------
 
 type RichText = {
@@ -60,19 +69,30 @@ const RichTextRun: FC<{ rich: RichText[] | undefined }> = ({ rich }) => (
 
 // ---------- Block renderers ----------
 
-type BlockProps = { block: NotionBlock }
+type BlockProps = { block: NotionBlock; headings: HeadingEntry[] }
 
-const ChildBlocks: FC<{ blocks?: NotionBlock[] }> = ({ blocks }) =>
-	blocks && blocks.length ? <NotionBlocks blocks={blocks} /> : null
+const ChildBlocks: FC<{ blocks?: NotionBlock[]; headings: HeadingEntry[] }> = ({
+	blocks,
+	headings,
+}) =>
+	blocks && blocks.length ? <NotionBlocks blocks={blocks} headings={headings} /> : null
 
-const Paragraph: FC<BlockProps> = ({ block }) => {
+const Paragraph: FC<BlockProps> = ({ block, headings }) => {
 	const rich = (block as any).paragraph?.rich_text as RichText[]
-	if (!rich || rich.length === 0) return <div className="h-4" />
+	const hasChildren = !!block.children?.length
+	if ((!rich || rich.length === 0) && !hasChildren)
+		return <div className="h-4" />
+	// Children (lists, nested paragraphs, etc.) cannot live inside <p>
+	// without breaking HTML nesting rules; render them as siblings.
 	return (
-		<p className="my-3 leading-7">
-			<RichTextRun rich={rich} />
-			<ChildBlocks blocks={block.children} />
-		</p>
+		<>
+			{rich && rich.length > 0 && (
+				<p className="my-3 leading-7">
+					<RichTextRun rich={rich} />
+				</p>
+			)}
+			<ChildBlocks blocks={block.children} headings={headings} />
+		</>
 	)
 }
 
@@ -83,17 +103,47 @@ const Heading: FC<{ block: NotionBlock; level: 1 | 2 | 3 }> = ({ block, level })
 		level === 2 ? "mt-6 mb-3 text-2xl font-bold" :
 		"mt-4 mb-2 text-xl font-semibold"
 	const Tag = `h${level}` as "h1" | "h2" | "h3"
-	return <Tag className={className}><RichTextRun rich={rich} /></Tag>
+	return (
+		<Tag id={headingId(block.id)} className={className}>
+			<RichTextRun rich={rich} />
+		</Tag>
+	)
 }
 
-const Quote: FC<BlockProps> = ({ block }) => (
+const TableOfContents: FC<{ headings: HeadingEntry[] }> = ({ headings }) => {
+	if (!headings.length) return null
+	return (
+		<nav className="my-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+			<p className="mb-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+				Table of contents
+			</p>
+			<ul className="space-y-1 text-sm">
+				{headings.map((h) => (
+					<li
+						key={h.id}
+						style={{ paddingLeft: `${(h.level - 1) * 1}rem` }}
+					>
+						<a
+							href={`#${headingId(h.id)}`}
+							className="text-blue-600 hover:underline dark:text-blue-400"
+						>
+							{h.text}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+	)
+}
+
+const Quote: FC<BlockProps> = ({ block, headings }) => (
 	<blockquote className="my-4 border-l-4 border-neutral-300 pl-4 italic dark:border-neutral-600">
 		<RichTextRun rich={(block as any).quote.rich_text} />
-		<ChildBlocks blocks={block.children} />
+		<ChildBlocks blocks={block.children} headings={headings} />
 	</blockquote>
 )
 
-const Callout: FC<BlockProps> = ({ block }) => {
+const Callout: FC<BlockProps> = ({ block, headings }) => {
 	const b = block as any
 	return (
 		<div className="my-4 flex gap-3 rounded-lg bg-neutral-100 p-4 dark:bg-neutral-800">
@@ -102,13 +152,13 @@ const Callout: FC<BlockProps> = ({ block }) => {
 			)}
 			<div className="flex-1">
 				<RichTextRun rich={b.callout.rich_text} />
-				<ChildBlocks blocks={block.children} />
+				<ChildBlocks blocks={block.children} headings={headings} />
 			</div>
 		</div>
 	)
 }
 
-const Code: FC<BlockProps> = ({ block }) => {
+const Code: FC<{ block: NotionBlock }> = ({ block }) => {
 	const b = block as any
 	const text = (b.code.rich_text as RichText[]).map((rt) => rt.plain_text).join("")
 	return (
@@ -122,7 +172,7 @@ const Divider: FC = () => (
 	<hr className="my-6 border-neutral-200 dark:border-neutral-700" />
 )
 
-const ImageBlock: FC<BlockProps> = ({ block }) => {
+const ImageBlock: FC<{ block: NotionBlock }> = ({ block }) => {
 	const b = block as any
 	const src: string | undefined = b.image?.type === "external"
 		? b.image.external.url
@@ -146,20 +196,20 @@ const ImageBlock: FC<BlockProps> = ({ block }) => {
 	)
 }
 
-const ToDo: FC<BlockProps> = ({ block }) => {
+const ToDo: FC<BlockProps> = ({ block, headings }) => {
 	const b = block as any
 	return (
 		<div className="my-1 flex items-start gap-2">
 			<input type="checkbox" checked={!!b.to_do.checked} readOnly className="mt-1" />
 			<div className="flex-1">
 				<RichTextRun rich={b.to_do.rich_text} />
-				<ChildBlocks blocks={block.children} />
+				<ChildBlocks blocks={block.children} headings={headings} />
 			</div>
 		</div>
 	)
 }
 
-const Toggle: FC<BlockProps> = ({ block }) => {
+const Toggle: FC<BlockProps> = ({ block, headings }) => {
 	const b = block as any
 	return (
 		<details className="my-2">
@@ -167,13 +217,13 @@ const Toggle: FC<BlockProps> = ({ block }) => {
 				<RichTextRun rich={b.toggle.rich_text} />
 			</summary>
 			<div className="pl-6 pt-2">
-				<ChildBlocks blocks={block.children} />
+				<ChildBlocks blocks={block.children} headings={headings} />
 			</div>
 		</details>
 	)
 }
 
-const Bookmark: FC<BlockProps> = ({ block }) => {
+const Bookmark: FC<{ block: NotionBlock }> = ({ block }) => {
 	const url: string = (block as any).bookmark.url
 	return (
 		<Link
@@ -187,7 +237,7 @@ const Bookmark: FC<BlockProps> = ({ block }) => {
 	)
 }
 
-const Embed: FC<BlockProps> = ({ block }) => {
+const Embed: FC<{ block: NotionBlock }> = ({ block }) => {
 	const url: string | undefined = (block as any).embed?.url
 	if (!url) return null
 	return (
@@ -204,23 +254,29 @@ const Embed: FC<BlockProps> = ({ block }) => {
 
 // ---------- List grouping ----------
 
-const BulletedList: FC<{ items: NotionBlock[] }> = ({ items }) => (
+const BulletedList: FC<{ items: NotionBlock[]; headings: HeadingEntry[] }> = ({
+	items,
+	headings,
+}) => (
 	<ul className="my-3 list-disc space-y-1 pl-6">
 		{items.map((item) => (
 			<li key={item.id}>
 				<RichTextRun rich={(item as any).bulleted_list_item.rich_text} />
-				<ChildBlocks blocks={item.children} />
+				<ChildBlocks blocks={item.children} headings={headings} />
 			</li>
 		))}
 	</ul>
 )
 
-const NumberedList: FC<{ items: NotionBlock[] }> = ({ items }) => (
+const NumberedList: FC<{ items: NotionBlock[]; headings: HeadingEntry[] }> = ({
+	items,
+	headings,
+}) => (
 	<ol className="my-3 list-decimal space-y-1 pl-6">
 		{items.map((item) => (
 			<li key={item.id}>
 				<RichTextRun rich={(item as any).numbered_list_item.rich_text} />
-				<ChildBlocks blocks={item.children} />
+				<ChildBlocks blocks={item.children} headings={headings} />
 			</li>
 		))}
 	</ol>
@@ -228,21 +284,22 @@ const NumberedList: FC<{ items: NotionBlock[] }> = ({ items }) => (
 
 // ---------- Dispatcher ----------
 
-const renderBlock = (block: NotionBlock): ReactNode => {
+const renderBlock = (block: NotionBlock, headings: HeadingEntry[]): ReactNode => {
 	switch (block.type) {
-		case "paragraph":           return <Paragraph block={block} />
+		case "paragraph":           return <Paragraph block={block} headings={headings} />
 		case "heading_1":           return <Heading block={block} level={1} />
 		case "heading_2":           return <Heading block={block} level={2} />
 		case "heading_3":           return <Heading block={block} level={3} />
-		case "quote":               return <Quote block={block} />
-		case "callout":             return <Callout block={block} />
+		case "quote":               return <Quote block={block} headings={headings} />
+		case "callout":             return <Callout block={block} headings={headings} />
 		case "code":                return <Code block={block} />
 		case "divider":             return <Divider />
 		case "image":               return <ImageBlock block={block} />
-		case "to_do":               return <ToDo block={block} />
-		case "toggle":              return <Toggle block={block} />
+		case "to_do":               return <ToDo block={block} headings={headings} />
+		case "toggle":              return <Toggle block={block} headings={headings} />
 		case "bookmark":            return <Bookmark block={block} />
 		case "embed":               return <Embed block={block} />
+		case "table_of_contents":   return <TableOfContents headings={headings} />
 		default:
 			return (
 				<div className="my-2 rounded border border-dashed border-neutral-300 p-2 text-xs text-neutral-500 dark:border-neutral-600">
@@ -252,7 +309,10 @@ const renderBlock = (block: NotionBlock): ReactNode => {
 	}
 }
 
-const NotionBlocks: FC<{ blocks: NotionBlock[] }> = ({ blocks }) => {
+const NotionBlocks: FC<{ blocks: NotionBlock[]; headings: HeadingEntry[] }> = ({
+	blocks,
+	headings,
+}) => {
 	// Group consecutive list items into a single <ul>/<ol>.
 	const out: ReactNode[] = []
 	let i = 0
@@ -263,7 +323,7 @@ const NotionBlocks: FC<{ blocks: NotionBlock[] }> = ({ blocks }) => {
 			while (i < blocks.length && blocks[i].type === "bulleted_list_item") {
 				group.push(blocks[i++])
 			}
-			out.push(<BulletedList key={group[0].id} items={group} />)
+			out.push(<BulletedList key={group[0].id} items={group} headings={headings} />)
 			continue
 		}
 		if (b.type === "numbered_list_item") {
@@ -271,10 +331,10 @@ const NotionBlocks: FC<{ blocks: NotionBlock[] }> = ({ blocks }) => {
 			while (i < blocks.length && blocks[i].type === "numbered_list_item") {
 				group.push(blocks[i++])
 			}
-			out.push(<NumberedList key={group[0].id} items={group} />)
+			out.push(<NumberedList key={group[0].id} items={group} headings={headings} />)
 			continue
 		}
-		out.push(<div key={b.id}>{renderBlock(b)}</div>)
+		out.push(<div key={b.id}>{renderBlock(b, headings)}</div>)
 		i++
 	}
 	return <>{out}</>
@@ -282,11 +342,30 @@ const NotionBlocks: FC<{ blocks: NotionBlock[] }> = ({ blocks }) => {
 
 // ---------- Public component ----------
 
+const collectHeadings = (blocks: NotionBlock[]): HeadingEntry[] => {
+	const out: HeadingEntry[] = []
+	const walk = (nodes: NotionBlock[]) => {
+		for (const b of nodes) {
+			const level =
+				b.type === "heading_1" ? 1 : b.type === "heading_2" ? 2 : b.type === "heading_3" ? 3 : 0
+			if (level) {
+				const rich = (b as any)[`heading_${level}`].rich_text as RichText[]
+				const text = rich.map((r) => r.plain_text).join("").trim()
+				if (text) out.push({ id: b.id, level: level as 1 | 2 | 3, text })
+			}
+			if (b.children?.length) walk(b.children)
+		}
+	}
+	walk(blocks)
+	return out
+}
+
 type Props = { blocks: NotionBlock[] | null }
 
 const NotionRenderer: FC<Props> = ({ blocks }) => {
 	if (!blocks) return null
-	return <NotionBlocks blocks={blocks} />
+	const headings = collectHeadings(blocks)
+	return <NotionBlocks blocks={blocks} headings={headings} />
 }
 
 export default NotionRenderer
