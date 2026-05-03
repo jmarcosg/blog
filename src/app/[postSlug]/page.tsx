@@ -10,13 +10,13 @@ export const dynamic = "force-dynamic";
 
 async function getPost(postSlug: string) {
 	const posts = await getAllPosts({ includePages: false });
-	if (!posts) return { post: null, recordMap: null };
+	if (!posts) return { post: null, blocks: null };
 	const filteredPosts = posts.filter((elem) => postSlug === elem.slug);
-	if (filteredPosts.length === 0) return { post: null, recordMap: null };
+	if (filteredPosts.length === 0) return { post: null, blocks: null };
 	const post = filteredPosts[0];
-	const recordMap = await getPostBlocks(post.id);
+	const blocks = await getPostBlocks(post.id);
 
-	return { post, recordMap };
+	return { post, blocks };
 }
 
 interface PostPageProps {
@@ -28,7 +28,7 @@ interface PostPageProps {
 const PostPage = async (props: PostPageProps) => {
 	const { params } = props;
 	const { postSlug } = params;
-	const { post, recordMap } = await getPost(postSlug);
+	const { post, blocks } = await getPost(postSlug);
 
 	if (!post) notFound();
 
@@ -59,7 +59,7 @@ const PostPage = async (props: PostPageProps) => {
 				</div>
 			</div>
 			<div className="mt-12">
-				<NotionRenderer recordMap={recordMap} />
+				<NotionRenderer blocks={blocks} />
 			</div>
 		</>
 	);

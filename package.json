@@ -12,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@notionhq/client": "^5.20.0",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
@@ -26,12 +27,8 @@
     "lucide-react": "^0.321.0",
     "next": "14.2.35",
     "next-themes": "^0.2.1",
-    "notion-types": "^6.16.0",
-    "notion-utils": "^6.16.0",
-    "p-map": "^7.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-notion-x": "^6.16.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7"
   },
