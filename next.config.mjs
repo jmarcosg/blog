@@ -2,26 +2,23 @@
 const nextConfig = {
 	images: {
 		remotePatterns: [
+			{ protocol: "https", hostname: "www.github.com" },
+			{ protocol: "https", hostname: "www.notion.so" },
 			{
 				protocol: "https",
-				hostname: "www.github.com",
+				hostname: "prod-files-secure.s3.us-west-2.amazonaws.com",
 			},
-			{
-				protocol: "https",
-				hostname: "www.notion.so",
-			},
+			{ protocol: "https", hostname: "s3.us-west-2.amazonaws.com" },
+			{ protocol: "https", hostname: "images.unsplash.com" },
 		],
 	},
 	typescript: {
 		ignoreBuildErrors: true,
 	},
-	eslint: {
-		ignoreDuringBuilds: true,
-	},
-	webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-		config.resolve.alias.canvas = false;
-		config.resolve.alias.encoding = false;
-		return config;
+	turbopack: {
+		// Lock the workspace root to this project; without it Next 16 walks up
+		// the tree and picks the first lockfile it finds.
+		root: import.meta.dirname,
 	},
 	async headers() {
 		return [

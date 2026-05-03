@@ -1,76 +1,75 @@
 import { NOTION_PAGE_ID } from "@/config"
-import { TPosts } from "@/types"
-import { idToUuid } from "notion-utils"
-import { getAllPageIds } from "./get-all-page-ids"
-import { getPageProperties } from "./get-page-properties"
-import { mapImgUrl } from "./map-image"
-import { api } from "./notion-api"
+import type { TPosts } from "@/types"
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import { notion } from "./client"
+import { mapPageToPost } from "./get-page-properties"
 
-/** Normalize property keys so Status/Type/Title/Slug work regardless of Notion column naming */
-function normalizePostProperties(properties: Record<string, unknown>): Record<string, unknown> {
-  const get = (keys: string[]) => {
-    const lowerKeys = keys.map((k) => k.toLowerCase())
-    for (const [k, v] of Object.entries(properties)) {
-      if (v != null && v !== "" && lowerKeys.includes(k.toLowerCase())) return v
-    }
-    return undefined
-  }
-  return {
-    ...properties,
-    title: get(["title", "name"]) ?? properties.title,
-    slug: get(["slug"]) ?? properties.slug,
-    status: get(["status"]) ?? properties.status,
-    type: get(["type"]) ?? properties.type,
-    tags: get(["tags"]) ?? properties.tags,
-  }
+/**
+ * @notionhq/client v5 introduced "data sources" — a database can contain
+ * one or more data sources, and queries now go through `dataSources.query`
+ * (the old `databases.query` was removed). Cache the resolved data source
+ * ID to avoid an extra round-trip on every request.
+ */
+let cachedDataSourceId: string | null = null
+
+async function resolveDataSourceId(databaseId: string): Promise<string> {
+	if (cachedDataSourceId) return cachedDataSourceId
+	const db = (await notion.databases.retrieve({
+		database_id: databaseId,
+	})) as { data_sources?: Array<{ id: string; name: string }> }
+	const ds = db.data_sources?.[0]
+	if (!ds) throw new Error(`Database ${databaseId} has no data sources`)
+	cachedDataSourceId = ds.id
+	return ds.id
 }
 
-export async function getAllPosts({ includePages = false }) {
-  const id = idToUuid(NOTION_PAGE_ID)
-  const response = await api.getPage(id)
-  const collection = Object.values(response.collection)[0]?.value
-  const collectionQuery = response.collection_query
-  const block = response.block
-  const schema = collection?.schema
+/**
+ * Fetch all posts from the Notion database via the official API.
+ * Paginates through all results and maps them to TPost.
+ */
+export async function getAllPosts({
+	includePages = false,
+}: {
+	includePages?: boolean
+} = {}): Promise<TPosts | null> {
+	if (!NOTION_PAGE_ID) {
+		console.error("NOTION_PAGE_ID is not set")
+		return null
+	}
 
-  const rawMetadata = block[id].value
+	try {
+		const dataSourceId = await resolveDataSourceId(NOTION_PAGE_ID)
 
-  // Check Type
-  if (
-    rawMetadata?.type !== "collection_view_page" &&
-    rawMetadata?.type !== "collection_view"
-  ) {
-    console.log(`pageId "${id}" is not a database`)
-    return null
-  } else {
-    // Construct Data
-    const pageIds = getAllPageIds(collectionQuery)
-    const data = []
-    for (let i = 0; i < pageIds.length; i++) {
-      const id = pageIds[i]
-      let properties = (await getPageProperties(id, block, schema)) || null
-      properties = normalizePostProperties(properties as Record<string, unknown>)
+		const results: PageObjectResponse[] = []
+		let cursor: string | undefined
+		do {
+			const res = await notion.dataSources.query({
+				data_source_id: dataSourceId,
+				start_cursor: cursor,
+				page_size: 100,
+			})
+			results.push(
+				...(res.results.filter(
+					(r) => "properties" in r
+				) as PageObjectResponse[])
+			)
+			cursor = res.has_more ? res.next_cursor ?? undefined : undefined
+		} while (cursor)
 
-      // Add fullwidth to properties
-      properties.fullWidth = block[id].value?.format?.page_full_width ?? false
-      // // Convert date (with timezone) to unix milliseconds timestamp
-      properties.createdTime = new Date(
-        block[id].value?.created_time
-      ).toISOString()
-      properties.thumbnail =
-        mapImgUrl(block[id].value?.format?.page_cover, block[id].value) ?? ""
+		const posts = results
+			.map(mapPageToPost)
+			.filter((p): p is NonNullable<typeof p> => p !== null)
+			.sort(
+				(a, b) =>
+					new Date(b.date.start_date).getTime() -
+					new Date(a.date.start_date).getTime()
+			)
 
-      data.push(properties)
-    }
-
-    // Sort by date
-    data.sort((a: any, b: any) => {
-      const dateA: any = new Date(a?.date?.start_date || a.createdTime)
-      const dateB: any = new Date(b?.date?.start_date || b.createdTime)
-      return dateB - dateA
-    })
-
-    const posts = data as TPosts
-    return posts
-  }
+		// includePages is honored downstream by filterPublishedPosts
+		void includePages
+		return posts
+	} catch (err) {
+		console.error("getAllPosts failed:", err)
+		return null
+	}
 }
