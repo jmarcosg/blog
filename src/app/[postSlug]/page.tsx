@@ -20,14 +20,13 @@ async function getPost(postSlug: string) {
 }
 
 interface PostPageProps {
-	params: {
+	params: Promise<{
 		postSlug: string;
-	};
+	}>;
 }
 
 const PostPage = async (props: PostPageProps) => {
-	const { params } = props;
-	const { postSlug } = params;
+	const { postSlug } = await props.params;
 	const { post, blocks } = await getPost(postSlug);
 
 	if (!post) notFound();
