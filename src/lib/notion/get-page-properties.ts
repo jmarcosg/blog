@@ -1,56 +1,77 @@
-import { getDateValue, getTextContent } from "notion-utils"
-import { api } from "./notion-api"
+import type {
+	PageObjectResponse,
+	RichTextItemResponse,
+} from "@notionhq/client/build/src/api-endpoints"
+import type { TPost } from "@/types"
 
-export async function getPageProperties(id, block, schema) {
-  const rawProperties = Object.entries(block?.[id]?.value?.properties || [])
-  const excludeProperties = ["date", "select", "multi_select", "person"]
-  const properties = {}
-  for (let i = 0; i < rawProperties.length; i++) {
-    const [key, val] = rawProperties[i]
-    properties.id = id
-    if (schema[key]?.type && !excludeProperties.includes(schema[key].type)) {
-      properties[schema[key].name] = getTextContent(val)
-    } else {
-      switch (schema[key]?.type) {
-        case "date": {
-          const dateProperty = getDateValue(val)
-          delete dateProperty.type
-          properties[schema[key].name] = dateProperty
-          break
-        }
-        case "select":
-        case "multi_select": {
-          const selects = getTextContent(val)
-          if (selects[0]?.length) {
-            properties[schema[key].name] = selects.split(",")
-          }
-          break
-        }
-        case "person": {
-          const rawUsers = val.flat()
-          const users = []
-          for (let i = 0; i < rawUsers.length; i++) {
-            if (rawUsers[i][0][1]) {
-              const userId = rawUsers[i][0]
-              const res = await api.getUsers(userId)
-              const resValue =
-                res?.recordMapWithRoles?.notion_user?.[userId[1]]?.value
-              const user = {
-                id: resValue?.id,
-                first_name: resValue?.given_name,
-                last_name: resValue?.family_name,
-                profile_photo: resValue?.profile_photo,
-              }
-              users.push(user)
-            }
-          }
-          properties[schema[key].name] = users
-          break
-        }
-        default:
-          break
-      }
-    }
-  }
-  return properties
+const plainText = (rts: RichTextItemResponse[] | undefined): string =>
+	(rts ?? []).map((t) => t.plain_text).join("")
+
+/**
+ * Property keys are matched case-insensitively against the Notion DB schema
+ * so columns named "Title" / "Slug" / "Tags" still work.
+ */
+function findProp(
+	props: Record<string, any>,
+	candidates: string[]
+): any | undefined {
+	const lower = candidates.map((c) => c.toLowerCase())
+	for (const [k, v] of Object.entries(props)) {
+		if (lower.includes(k.toLowerCase())) return v
+	}
+	return undefined
+}
+
+/**
+ * Map a Notion PageObjectResponse (database row) to our TPost shape.
+ * Database schema: title, slug, date, summary, tags, status, type.
+ */
+export function mapPageToPost(page: PageObjectResponse): TPost | null {
+	const props = page.properties as Record<string, any>
+
+	const titleProp = findProp(props, ["title", "name"])
+	const title = plainText(titleProp?.title)
+
+	const slug = plainText(findProp(props, ["slug"])?.rich_text)
+	const summary = plainText(findProp(props, ["summary"])?.rich_text)
+
+	const dateRaw = findProp(props, ["date"])?.date
+	const date = dateRaw?.start
+		? { start_date: dateRaw.start as string }
+		: { start_date: page.created_time }
+
+	const tagsRaw = findProp(props, ["tags"])?.multi_select ?? []
+	const tags: string[] = tagsRaw.map((t: { name: string }) => t.name)
+
+	// status / type may be `select` or `status` types. Wrap singletons in
+	// arrays for compatibility with downstream filter / display code.
+	const statusProp = findProp(props, ["status"])
+	const statusName =
+		statusProp?.select?.name ?? statusProp?.status?.name ?? null
+	const status = statusName ? [statusName] : []
+
+	const typeProp = findProp(props, ["type"])
+	const typeName = typeProp?.select?.name ?? null
+	const type = typeName ? [typeName] : []
+
+	let thumbnail: string | undefined
+	const cover = page.cover as any
+	if (cover?.type === "external") thumbnail = cover.external?.url
+	else if (cover?.type === "file") thumbnail = cover.file?.url
+
+	if (!title || !slug) return null
+
+	return {
+		id: page.id,
+		title,
+		slug,
+		date,
+		summary,
+		tags,
+		status: status as TPost["status"],
+		type: type as TPost["type"],
+		createdTime: page.created_time,
+		fullWidth: false,
+		thumbnail,
+	}
 }

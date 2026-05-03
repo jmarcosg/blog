@@ -1,4 +1,4 @@
-import { ExtendedRecordMap } from "notion-types"
+import type { NotionBlock } from "@/lib/notion/get-post-blocks"
 
 export type TPostStatus = "Published" | "Draft" | "Revise" | "Idea"
 export type TPostType = "Post" | "Paper" | "Page"
@@ -24,7 +24,7 @@ export type TPost = {
 }
 
 export type PostDetail = TPost & {
-  recordMap: ExtendedRecordMap
+  blocks: NotionBlock[]
 }
 
 export type TPosts = TPost[]
